@@ -6,7 +6,7 @@ var schema = buildSchema(`
   type Query {
    quoteOfTheDay: String
    random: Float!
-   rollThreeDice(numDice: Int!, numSides: Int): [Int]
+   rollDice(numDice: Int!, numSides: Int): [Int]
   },
 `);
 
@@ -17,10 +17,10 @@ var root = {
   random: () => {
   	return Math.random();
   },
-  rollThreeDice: function(args) {
+  rollDice: function({numDice, numSides}) {
   	var output = [];
-  	for (var i = 0; i < args.numDice; i++) {
-  		output.push(1 + Math.floor(Math.random() * (args.numSides || 6)));
+  	for (var i = 0; i < numDice; i++) {
+  		output.push(1 + Math.floor(Math.random() * (numSides || 6)));
   	}
   	return output;
   },
