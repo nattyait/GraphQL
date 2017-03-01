@@ -10,7 +10,21 @@ var schema = buildSchema(`
   },
   type Query {
    getDie(numSides: Int): RandomDie
+   getMessage(id: ID!): Message
   },
+  type Mutation {
+  	createMessage(input: MessageInput): Message
+  	updateMessage(id: ID!, input: MessageInput): Message
+  }
+  input MessageInput {
+  	content: String
+  	author: String
+  }
+  type Message {
+  	id: ID!
+  	content: String
+  	author: String
+  }
 `);
 
 class RandomDie {
@@ -29,10 +43,36 @@ class RandomDie {
     }
 }
 
+class Message {
+	constructor(id, {content, author}) {
+		this.id = id;
+		this.content = content;
+		this.author = author;
+	}
+}
+
+var fakeDatabase = {};
+
 var root = {
   getDie: function({numSides}) {
     return new RandomDie(numSides || 6);
   },
+  getMessage: function({id}) {
+  	return fakeDatabase.message;
+  },
+  createMessage: function({input}) {
+  	var id = require('crypto').randomBytes(10).toString('hex');
+  	fakeDatabase[id] = input;
+  	return new Message(id, input)
+  },
+  updateMessage: function({id, input}) {
+  	if(!fakeDatabase[id]) {
+  		throw new Error('no message exists with id' + id);
+  	}
+  	fakeDatabase[id] = input;
+  	return new Message(id, input);
+  }
+
 };
 
 var app = express();
@@ -43,12 +83,3 @@ app.use('/graphql', graphqlHTTP({
 }));
 app.listen(4000);
 console.log('Running a GraphQL API server at localhost:4000/graphql');
-
-/*
-{ 
-  getDie(numSides: 3){
-    rollOnce
-    roll(numRolls: 3)
-  }
-}
-/*
