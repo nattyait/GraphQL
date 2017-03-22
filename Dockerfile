@@ -10,5 +10,3 @@ RUN npm init --yes
 RUN npm install graphql --save
 
 CMD ["node", "./server.js"]
-
-
